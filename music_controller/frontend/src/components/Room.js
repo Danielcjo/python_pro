@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Grid, Button, Typography } from "@mui/material";
 import CreateRoomPage from "./CreateRoomPage";
 import withNavigation from "./withNavigation";
+import MusicPlayer from "./MusicPlayer";
 
 class Room extends Component {
   constructor(props) {
@@ -21,8 +22,16 @@ class Room extends Component {
     this.renderSettings = this.renderSettings.bind(this);
     this.getRoomDetails = this.getRoomDetails.bind(this);
     this.authenticateSpotify = this.authenticateSpotify.bind(this);
+    this.getCurrentSong = this.getCurrentSong.bind(this);
     this.getRoomDetails();
-    this.getCurrentSong();
+  }
+
+  componentDidMount() {
+    this.intervel = setInterval(this.getCurrentSong, 1000)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   getRoomDetails() {
@@ -145,7 +154,7 @@ class Room extends Component {
             Code: {this.roomCode}
           </Typography>
         </Grid>
-        {this.state.song}
+        <MusicPlayer {...this.state.song} />
         {this.state.isHost ? this.renderSettingsButton() : null}
         <Grid item xs={12} align="center">
           <Button
