@@ -74,17 +74,21 @@ class Room extends Component {
   getCurrentSong() {
     fetch('/spotify/current-song')
       .then((response) => {
-        if(!response.ok) {
-          return {};
-        } else {
-          return response.json()
+        if (!response.ok) {
+          return null; // Return null if response is not OK
         }
+        return response.json().catch(() => null); // Catch JSON parsing errors
       })
       .then((data) => {
-        this.setState({song: data});
-        console.log(data);
-  });
+        if (data) {
+          this.setState({ song: data });
+          console.log(data);
+        } else {
+          console.error("Failed to fetch current song or parse response");
+        }
+      });
   }
+  
 
 
   leaveButtonPressed() {
