@@ -28,7 +28,7 @@ def spotify_callback(request, format=None):
     response = post('https://accounts.spotify.com/api/token', data={
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_url': REDIRECT_URI,
+        'redirect_uri': REDIRECT_URI,
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET
     }).json()
@@ -42,12 +42,20 @@ def spotify_callback(request, format=None):
     if not request.session.exists(request.session.session_key):
         request.session.create()
     
-    update_or_create_user_tokens(request.session.session_key, access_token, token_type, refresh_token, expires_in)
+    session_id = request.session.session_key
+    print(f"Saving tokens for session {session_id}")  # Debugging line
+    print(f"Access Token: {access_token}")  # Debugging line
+    print(f"Refresh Token: {refresh_token}")  # Debugging line
+    print(f"Expires In: {expires_in}")  # Debugging line
+    
+    update_or_create_user_tokens(session_id, access_token, token_type, expires_in, refresh_token)
     
     return redirect('frontend:')
-        
-        
 
+
+
+
+        
 class IsAuthenticated(APIView):
     def get(self, request, format=None):
         is_authenticated = is_spotify_authenticated(self.request.session.session_key)
@@ -58,12 +66,17 @@ class IsAuthenticated(APIView):
 class CurrentSong(APIView):
     def get(self, request, format=None):
         room_code = self.request.session.get('room_code')
+        print(f"Room Code: {room_code}")  # Debugging line
+        print(f"Session ID: {self.request.session.session_key}")  # Debugging line
+        
         room = Room.objects.filter(code=room_code)
         if room.exists():
             room = room[0]
         else:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         host = room.host
+        print(f"Host: {host}")  # Debugging line
+        
         endpoint = "player/currently-playing"
         response = execute_spotify_api_request(host, endpoint)
         
@@ -78,13 +91,12 @@ class CurrentSong(APIView):
         song_id = item.get('id')
         
         artist_string = ""
-        
         for i, artist in enumerate(item.get('artists')):
             if i > 0:
-                artist_string += ","
+                artist_string += ", "
             name = artist.get('name')
             artist_string += name
-            
+        
         song = {
             'title': item.get('name'),
             'artist': artist_string,
