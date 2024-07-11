@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import {Grid, Typography, Card, IconButton, LinearProgress} from "@mui/material";
-import {PlayArrowIcon, SkipNextIcon, PauseIcon} from "@mui/icons";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
 import withNavigation from "./withNavigation";
 
 class MusicPlayer extends Component {
